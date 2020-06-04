@@ -40,20 +40,28 @@ Estrutura do projeto:
 Bora lá, então?
 
 ## Instalar o Minikube e um Cluster de Kubernetes no Host (branch: feature/get-started) 
-- [ ] Instalação
+- [x] Instalação do Minikube
   
   $ curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64 \
   && chmod +x minikube
   
   $ sudo cp minikube /usr/local/bin && rm minikube
-- [ ] Criação da máquina virtual do projeto (a partir da pasta do projeto)
+
+- [x] Instalação do Kubectl:
+
+  $ curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl
+
+  $ sudo chmod +x kubectl && cp kubectl /usr/local/bin && rm kubectl
+  
+- [x] Criação da máquina virtual do projeto (a partir da pasta do projeto)
   
   $ mkdir 00-k8s_elk_node
   
   $ minikube start --cpus 2 --memory 4000
-- [ ] Testes:
 
-    $ $ kubectl get pod
+- [x] Testes:
+
+    $ kubectl get pod
 
     $ kubectl get pod --all-namespaces // mostra os pods do próprio Kubernetes
 
