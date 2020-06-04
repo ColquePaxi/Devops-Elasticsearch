@@ -68,9 +68,9 @@ Bora lá, então?
     $ minikube dashboard // visualização gráfica (no browser) do Cluster
 
 ## Construindo a aplicação NodeJS integrada ao APM (branch: feature/app-node)
-- [ ] Desenvolver simples API RESTFul ou fazer um clone de https://github.com/waldemarnt/node-docker-example.git
-- [ ] Usar a biblioteca APM Node.JS Agent (capturar: requests, CPUs, memória e vários outros dados que depois serão *puxados pelo APM* e depois *visualizados no Kibana*)
-- [ ] Iniciar o Servidor APM dentro da aplicação NodeJS, apontando para o servidor nas mesmas configurações de HOST:PORTA definida na máquina docker
+- [x] Desenvolver simples API RESTFul ou fazer um clone de https://github.com/waldemarnt/node-docker-example.git
+- [x] Usar a biblioteca APM Node.JS Agent (capturar: requests, CPUs, memória e vários outros dados que depois serão *puxados pelo APM* e depois *visualizados no Kibana*)
+- [x] Iniciar o Servidor APM dentro da aplicação NodeJS, apontando para o servidor nas mesmas configurações de HOST:PORTA definida na máquina docker (vamos usar o padrão)
 
 ## Entendendo as máquinas docker e suas integrações que rodarão dentro do Kubernetes 
 Analisando os arquivos .yaml que criarão os PODs
@@ -139,15 +139,16 @@ Analisando os arquivos .yaml que criarão os PODs
 
 ## Configurando a Aplicação para enviar os dados de log para o APM (branch: feature/node-app-k8s)
 - [ ] $ npm install elastic-apm-node
-Fazer *build* da imagem dentro do Kubernetes
-- [ ] Posicione-se na pasta da aplicação NodeJS (
-- [ ] Acessar e posicionar o docker da VM através do nosso Host: $ eval $(minikube docker-env)
-- [ ] Mostrar todos os dockers que estão rodando dentro do Kubernetes: $ docker ps
-- [ ] Mostrar todas as imagens que estão dentro do Kubernetes: $ docker images ls
-- [ ] Fazer a build dentro da VM: $ docker build -t node-app-tutorial
-- [ ] Ver se a imagem foi criada dentro da VM: $ docker images
-- [ ] No arquivo node.yaml -> spec -> template -> spec -> containers -> image: node-app-tutorial:latest
-- [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/node/node.yaml (instrução assíncrona)
+
+- Fazer *build* da imagem dentro do Kubernetes
+  - [ ] Posicione-se na pasta da aplicação NodeJS (
+  - [ ] Acessar e posicionar o docker da VM através do nosso Host: $ eval $(minikube docker-env)
+  - [ ] Mostrar todos os dockers que estão rodando dentro do Kubernetes: $ docker ps
+  - [ ] Mostrar todas as imagens que estão dentro do Kubernetes: $ docker images ls
+  - [ ] Fazer a build dentro da VM: $ docker build -t node-app-tutorial
+  - [ ] Ver se a imagem foi criada dentro da VM: $ docker images
+  - [ ] No arquivo node.yaml -> spec -> template -> spec -> containers -> image: node-app-tutorial:latest
+  - [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/node/node.yaml (instrução assíncrona)
 
 - Saiba o estado dessa criação assim: 
   
