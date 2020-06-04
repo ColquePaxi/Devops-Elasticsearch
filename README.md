@@ -100,8 +100,8 @@ Analisando os arquivos .yaml que criarão os PODs
   $ minikube delete (isso apaga todo o deploy até o momento)
 
 ## Criando a infraestrutura do Kibana no Kubernetes dentro da VM (branch: feature/kibana)
-- [ ] $ kubectl create -f ./yaml/elastic/kibana.yaml (instrução assíncrona)
-- [ ] Saiba o estado dessa criação assim: 
+- [x] $ kubectl create -f ./yaml/elastic/kibana.yaml (instrução assíncrona)
+- [x] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
   
@@ -115,15 +115,15 @@ Analisando os arquivos .yaml que criarão os PODs
   
   $ minikube dashboard (aí você vê o kibana ativo lá)
   
-- [ ] Saiba em qual porta está rodando o Kibana 
+- [x] Saiba em qual porta está rodando o Kibana 
   
   $ kubectl cluster-info
   
   $ kubectl get services -o wide
   
-  Browser: http://IPDaVm:Porta (mostra a a interface do Kibana)
+  Browser: https://IPDaVm:Porta (mostra a a interface do Kibana)
   
-  Obs.: não use https am ambientes de testes.
+  Obs.: Não não abrir o browser, use o http ao invés do https.
 
 ## Criando a infraestrutura do APM no Kubernetes dentro da VM (branch: feature/apm)
 - [ ] $ kubectl create -f ./yaml/elastic/apm-server.yaml (instrução assíncrona)
