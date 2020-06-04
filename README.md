@@ -58,6 +58,8 @@ Bora lá, então?
   $ mkdir 00-k8s_elk_node
   
   $ minikube start --cpus 2 --memory 4000
+  
+  $ kubectl cluster-info // Saída -> Kubernetes master is running at https://172.17.0.2:8443 
 
 - [x] Testes:
 
@@ -70,22 +72,22 @@ Bora lá, então?
 ## Construindo a aplicação NodeJS integrada ao APM (branch: feature/app-node)
 - [x] Desenvolver simples API RESTFul ou fazer um clone de https://github.com/waldemarnt/node-docker-example.git
 - [x] Usar a biblioteca APM Node.JS Agent (capturar: requests, CPUs, memória e vários outros dados que depois serão *puxados pelo APM* e depois *visualizados no Kibana*)
-- [x] Iniciar o Servidor APM dentro da aplicação NodeJS, apontando para o servidor nas mesmas configurações de HOST:PORTA definida na máquina docker (vamos usar o padrão)
+- [x] Iniciar o Servidor APM dentro da aplicação NodeJS, apontando para o servidor nas mesmas configurações de http://apm-server:8200 definida na máquina docker (vamos usar o padrão)
 
 ## Entendendo as máquinas docker e suas integrações que rodarão dentro do Kubernetes 
 Analisando os arquivos .yaml que criarão os PODs
-- [ ] Services (Entrypoint -> camada acima dos PODs que recebem as requisições e "roteiam" para os PODs disponíveis)
-- [ ] PODs (Agrupamento de máquinas docker)
+- [x] Services (Entrypoint -> camada acima dos PODs que recebem as requisições e "roteiam" para os PODs disponíveis)
+- [x] PODs (Agrupamento de máquinas docker)
 
 ## Criando a infraestrutura do Elasticsearch no Kubernetes dentro da VM (branch: feature/elastic)
-- [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/elastic/elasticsearch.yaml (instrução assíncrona)
-- [ ] Saiba o estado dessa criação assim:
+- [x] $ kubectl create -f ./yaml/elastic/elasticsearch.yaml (instrução assíncrona)
+- [x] Saiba o estado dessa criação assim:
  
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
   
-  $ kubectl describe pod -elasticsearch-0 (dessa forma você vê com mais detalhes)
+  $ kubectl describe pod elasticsearch-0 (dessa forma você vê com mais detalhes)
   
-  $ kubectl describe pod -elasticsearch-0 (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
+  $ kubectl describe pod elasticsearch-0 (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
   
   $ kubectl get pod (e verifique o STATUS = Running)
   
@@ -93,41 +95,49 @@ Analisando os arquivos .yaml que criarão os PODs
   
   $ minikube dashboard (aí você vê o elasticsearch ativo lá)
 
+  Se o POD criado não subir (der Erro, CrashLoopBackOff, qualquer cosia diferente de Running), delete-o com o comando abaixo e refaça o procedimento acima:
+  
+  $ minikube delete (isso apaga todo o deploy até o momento)
+
 ## Criando a infraestrutura do Kibana no Kubernetes dentro da VM (branch: feature/kibana)
-- [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/elastic/kibana.yaml (instrução assíncrona)
+- [ ] $ kubectl create -f ./yaml/elastic/kibana.yaml (instrução assíncrona)
 - [ ] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
   
-  $ kubectl describe pod -kibana-deployment-'hash' (dessa forma você vê com mais detalhes)
+  $ kubectl describe pod kibana-deployment-'hash' (dessa forma você vê com mais detalhes)
   
-  $ kubectl describe pod -kibana-deployment-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
+  $ kubectl describe pod kibana-deployment-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
   
   $ kubectl get pod (e verifique o STATUS = Running)
   
-  $ kubectl logs -f -kibana-deployment-'hash' (monitora os logs no console)
+  $ kubectl logs -f kibana-deployment-'hash' (monitora os logs no console)
   
   $ minikube dashboard (aí você vê o kibana ativo lá)
   
 - [ ] Saiba em qual porta está rodando o Kibana 
   
+  $ kubectl cluster-info
+  
   $ kubectl get services -o wide
   
   Browser: http://IPDaVm:Porta (mostra a a interface do Kibana)
+  
+  Obs.: não use https am ambientes de testes.
 
 ## Criando a infraestrutura do APM no Kubernetes dentro da VM (branch: feature/apm)
-- [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/elastic/apm-server.yaml (instrução assíncrona)
+- [ ] $ kubectl create -f ./yaml/elastic/apm-server.yaml (instrução assíncrona)
 - [ ] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
   
-  $ kubectl describe pod -apm-server-'hash' (dessa forma você vê com mais detalhes)
+  $ kubectl describe pod apm-server-'hash' (dessa forma você vê com mais detalhes)
   
-  $ kubectl describe pod -apm-server-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
+  $ kubectl describe pod apm-server-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
   
   $ kubectl get pod (e verifique o STATUS = Running)
   
-  $ kubectl logs -f -apm-server-'hash' (monitora os logs no console)
+  $ kubectl logs -f apm-server-'hash' (monitora os logs no console)
   
   $ minikube dashboard (aí você vê o APM ativo lá)
 
@@ -148,24 +158,24 @@ Analisando os arquivos .yaml que criarão os PODs
   - [ ] Fazer a build dentro da VM: $ docker build -t node-app-tutorial
   - [ ] Ver se a imagem foi criada dentro da VM: $ docker images
   - [ ] No arquivo node.yaml -> spec -> template -> spec -> containers -> image: node-app-tutorial:latest
-  - [ ] $ kubectl create -f examples/k8s_elastic_kibana_apm/node/node.yaml (instrução assíncrona)
+  - [ ] $ kubectl create -f ./yaml/node/node.yaml (instrução assíncrona)
 
 - Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
 
-  $ kubectl describe pod -apm-server-'hash' (dessa forma você vê com mais detalhes)
+  $ kubectl describe pod apm-server-'hash' (dessa forma você vê com mais detalhes)
 
-  $ kubectl describe pod -apm-server-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
+  $ kubectl describe pod apm-server-'hash' (ao repetir o comando você vê o novo status, o andamento, onde está agora...)
 
   $ kubectl get pod (e verifique o STATUS = Running)
 
-  $ kubectl logs -f -apm-server-'hash' (monitora os logs no console)
+  $ kubectl logs -f apm-server-'hash' (monitora os logs no console)
 
   $ minikube dashboard (aí você vê o APM ativo lá)
 
 - Se deu algum erro na criação, ajuste e refaça assim:
-  - [ ] $ kubectl apply -f examples/k8s_elastic_kibana_apm/node/node.yaml (instrução assíncrona)
+  - [ ] $ kubectl apply -f ./yaml/node/node.yaml (instrução assíncrona)
 
 - Saiba em qual porta está rodando o Kibana
     
@@ -191,7 +201,7 @@ Isso que acabamos de implementar é só o começo. Para um ambiente de produçã
 
 ## Referências 
 - https://www.youtube.com/watch?v=CqLB-tBYB2Q
-- https://github.com/waldemarnt/devops-resources/blob/master/examples/k8s_elastic_kibana_apm/elastic/elasticsearch.yaml
+- https://github.com/waldemarnt/devops-resources/blob/master/./yaml/elasticsearch.yaml
 
 ## Agradecimento especial 
 Aproveito para agradecer ao Waldemar Neto do Dev Lab por toda contribuição e esforço que tem empenhado à comunidade.
