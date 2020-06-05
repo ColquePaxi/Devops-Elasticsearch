@@ -126,8 +126,8 @@ Analisando os arquivos .yaml que criarão os PODs
   Obs.: Não não abrir o browser, use o http ao invés do https.
 
 ## Criando a infraestrutura do APM no Kubernetes dentro da VM (branch: feature/apm)
-- [ ] $ kubectl create -f ./yaml/elastic/apm-server.yaml (instrução assíncrona)
-- [ ] Saiba o estado dessa criação assim: 
+- [x] $ kubectl create -f ./yaml/elastic/apm-server.yaml (instrução assíncrona)
+- [x] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
   
@@ -142,10 +142,10 @@ Analisando os arquivos .yaml que criarão os PODs
   $ minikube dashboard (aí você vê o APM ativo lá)
 
 - Veja se o APM está ativo no Browser do Kibana (ou seja, "conversando" com o Kibana)
-  - [ ] http://IPDaVm:Porta (mostra a a interface do Kibana)
-  - [ ] Vá até o item APM
-  - [ ] Setup Instructions
-  - [ ] APM Server Status OK (tem que estar diferente de "APM Server has still not connected to Elasticsearch) 
+  - [x] http://IPDaVm:Porta (mostra a a interface do Kibana)
+  - [x] Vá até o item APM
+  - [x] Setup Instructions
+  - [x] APM Server Status OK (tem que estar diferente de "APM Server has still not connected to Elasticsearch) 
 
 ## Configurando a Aplicação para enviar os dados de log para o APM (branch: feature/node-app-k8s)
 - [ ] $ npm install elastic-apm-node

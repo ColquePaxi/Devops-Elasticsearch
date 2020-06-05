@@ -34,6 +34,7 @@ spec:
         persistentVolumeClaim:
           claimName: elasticsearch
 ---
+# Entrypoint (estão acima dos PODs - eles escolhem para qual POD vai mandar a requisição)
 apiVersion: v1
 kind: Service
 metadata:
@@ -58,8 +59,8 @@ metadata:
     stack: logging
 spec:
   # storageClassName: standard
-  accessModes:
-  - ReadWriteOnce
+  accessModes: [ "ReadWriteOnce" ]
+  # - ReadWriteOnce
   resources:
     requests:
       storage: 1G
