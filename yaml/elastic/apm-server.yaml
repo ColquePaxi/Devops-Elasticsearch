@@ -46,11 +46,13 @@ spec:
     targetPort: 8200
     name: http
     nodePort: 31000
+    #nodePort: 31100
   selector:
     app: apm-server
   type: NodePort
 ---
-apiVersion: extensions/v1beta1
+#apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: apm-server
@@ -58,10 +60,13 @@ spec:
   # this replicas value is default
   # modify it according to your case
   replicas: 1
+  selector:
+    matchLabels:
+      name: apm-server
   template:
     metadata:
       labels:
-        app: apm-server
+        name: apm-server
     spec:
       containers:
       - name: apm-server
