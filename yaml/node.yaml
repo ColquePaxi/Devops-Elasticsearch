@@ -16,7 +16,11 @@ spec:
     spec:
       containers:
       - name: node-app
-        image: node-app:latest
+        image: node-app-tutorial:latest
+        env:
+        - name: NODE_ENV
+          value: "development"
+        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3000
           name: webinterface

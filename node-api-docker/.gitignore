@@ -1,0 +1,8 @@
+node_modules
+db
+tmp
+*.tmp*
+*.log
+.changelog
+coverage
+.env

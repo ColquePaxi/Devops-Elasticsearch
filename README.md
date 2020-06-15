@@ -80,7 +80,7 @@ Analisando os arquivos .yaml que criarão os PODs
 - [x] PODs (Agrupamento de máquinas docker)
 
 ## Criando a infraestrutura do Elasticsearch no Kubernetes dentro da VM (branch: feature/elastic)
-- [x] $ kubectl create -f ./yaml/elastic/elasticsearch.yaml (instrução assíncrona)
+- [x] $ kubectl create -f ./yaml/elasticsearch.yaml (instrução assíncrona)
 - [x] Saiba o estado dessa criação assim:
  
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
@@ -100,7 +100,7 @@ Analisando os arquivos .yaml que criarão os PODs
   $ minikube delete (isso apaga todo o deploy até o momento)
 
 ## Criando a infraestrutura do Kibana no Kubernetes dentro da VM (branch: feature/kibana)
-- [x] $ kubectl create -f ./yaml/elastic/kibana.yaml (instrução assíncrona)
+- [x] $ kubectl create -f ./yaml/kibana.yaml (instrução assíncrona)
 - [x] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
@@ -126,7 +126,7 @@ Analisando os arquivos .yaml que criarão os PODs
   Obs.: Não não abrir o browser, use o http ao invés do https.
 
 ## Criando a infraestrutura do APM no Kubernetes dentro da VM (branch: feature/apm)
-- [x] $ kubectl create -f ./yaml/elastic/apm-server.yaml (instrução assíncrona)
+- [x] $ kubectl create -f ./yaml/apm-server.yaml (instrução assíncrona)
 - [x] Saiba o estado dessa criação assim: 
   
   $ kubectl get pod (e verifique o STATUS = ContainerCreating)
@@ -147,18 +147,63 @@ Analisando os arquivos .yaml que criarão os PODs
   - [x] Setup Instructions
   - [x] APM Server Status OK (tem que estar diferente de "APM Server has still not connected to Elasticsearch) 
 
-## Configurando a Aplicação para enviar os dados de log para o APM (branch: feature/node-app-k8s)
-- [ ] $ npm install elastic-apm-node
+## Desenvovlendo o DB e a API que será implantada no K8S (branch: feature/node-app-k8s)
 
+- Configurar e executar a aplicação:
+  Vá até a pasta do projeto: $ cd 00-k8s_elk_node/node-api-docker
+  - Ambiente DEV (só vamos subir o container docker do banco de dados):
+    - [x] Configurar as variáveis de ambiente: NODE_ENV=development  
+    - [x] Gerar o código da aplicação (com base nas definições do package.json): $ yarn build "nome da aplicação opcional"
+    - [x] Subir os containers de servidores: $ cd node-api-docker$ make up
+    - [x] Subir a aplicação no Host consumindo o banco de dados no container: $ yarn dev (dê STOP no container da aplicação antes)
+      
+    Pronto!!!!
+    Para desenvolver é mais fácil abrir a IDE, codar a API (sem tê-la num container nesse momento), porém já conectada aos containers (database, cache, etc., tudo que não seja a API).
+    Vamos testar subindo a aplicação no Host pra ver se está ok (lembrando que o script do ambiente de produção é outro no package.json):
+    A configuração do script start tem que estar assim:     
+      "start": "pm2 start index.js --watch --no-daemon --node-args=\"-r esm -r dotenv/config\""
+    - [x] $ yarn start (dê STOP no container da aplicação antes e/ou Ctrl + C no start dev que havia iniciado o servidor) 
+    
+    Isso vai criar um PROCESSO (no seu SO) que você pode verificar no seu PID (Linux/Mac).
+    Quando você dá um Ctrl+C você sai do start mas ainda o processo fica ativo. Isso porque a função do PM2 é manter a aplicação no ar e com alta disponibilidade. Portanto, ele tentará fazer load balanced, réplica do processo e afins toda vez que você executar yarn start (com o -f no package.json na linha do script start)..
+    Caso precise subir novamente a aplicação, primeiro delete os processos que subiram para a sua aplicação assim:
+    
+    - [x] $ pm2 ls (e veja o nome da aplicação que foi criada)
+    - [x] $ pm2 delete index (caso index seja o nome da aplicação)
+    - [x] $ yarn start (novamente) 
+
+  Ambiente de PROD no CONTAINER DOCKER (vamos subir o container do banco de dados e outro container da aplicação):
+    - [x] Acrescentar o service chamado api dentro do docker-compose.yml.
+    - [x] Vamos subir a nova configuração do docker compose: $ make up
+    - [x] Veja se agora você está com 2 containers ativos: $ docker ps (node:latest e mongo:4.2)
+    - [x] Vamos ver o LOG e verificar que existem alguns probleminhas a serem resolvidos: $ make logs
+      
+      api    | 14:54:10 0|index  | MongoNetworkError: failed to connect to server [0.0.0.0:27017] on first connect [{ Error: connect ECONNREFUSED 0.0.0.0:27017
+ 
+      Por que aconteceu isso? Porque faltou configurar a variável de ambiente DB_HOST com o IP do container docker do database (geralmente é o IP que se descobre executando um docker inspect no container). Mas se a gente "engessar o IP", toda vez que subir os containers teremos de configurar novamente o IP. 
+ 
+      Para resolver: 
+      
+      - [x] Alterar o arquivo .env: de DB_HOST=0.0.0.0 para DB_HOST=db     (que é o nome do serviço descrito no docker-compose.yml) 
+      - [x] Baixar os containers e subir novamente: $ make down && make up
+ 
+      Verifique no browser se os endpoints estão ativos agora: 
+      
+      - [x] http://localhost:3001/hello  
+      - [x] http://localhost:3001/users (consultando do DB - coloque alguns dados fake) 
+
+## Configurando a Aplicação para enviar os dados de log para o APM (branch: feature/node-app-k8s-deploy)
 - Fazer *build* da imagem dentro do Kubernetes
-  - [ ] Posicione-se na pasta da aplicação NodeJS (
+  - [ ] Posicione-se na pasta da aplicação NodeJS (./node-api-docker)
+  - [ ] Instale o pacote do APM no seu módulo: $ yarn install elastic-apm-node
   - [ ] Acessar e posicionar o docker da VM através do nosso Host: $ eval $(minikube docker-env)
+  - [ ] Configurar a variável de ambiente: $ export NODE_ENV=development
   - [ ] Mostrar todos os dockers que estão rodando dentro do Kubernetes: $ docker ps
   - [ ] Mostrar todas as imagens que estão dentro do Kubernetes: $ docker images ls
-  - [ ] Fazer a build dentro da VM: $ docker build -t node-app-tutorial
+  - [ ] Fazer a build dentro da VM: $ docker build -t node-app-tutorial .
   - [ ] Ver se a imagem foi criada dentro da VM: $ docker images
   - [ ] No arquivo node.yaml -> spec -> template -> spec -> containers -> image: node-app-tutorial:latest
-  - [ ] $ kubectl create -f ./yaml/node/node.yaml (instrução assíncrona)
+  - [ ] $ kubectl create -f ../yaml/node.yaml (instrução assíncrona)
 
 - Saiba o estado dessa criação assim: 
   
@@ -170,21 +215,26 @@ Analisando os arquivos .yaml que criarão os PODs
 
   $ kubectl get pod (e verifique o STATUS = Running)
 
-  $ kubectl logs -f apm-server-'hash' (monitora os logs no console)
+  $ kubectl logs -f node-app-deployment-db867649b-ldlhl (monitora os logs no console)
 
   $ minikube dashboard (aí você vê o APM ativo lá)
 
 - Se deu algum erro na criação, ajuste e refaça assim:
-  - [ ] $ kubectl apply -f ./yaml/node/node.yaml (instrução assíncrona)
+  - [ ] $ kubectl get deployments --all-namespaces
+  - [ ] $ kubectl delete -n default deployment node-app-deployment
+  - [ ] $ kubectl delete -n default service node-app
+  - [ ] Ajuste suas configurações de deployment
+  - [ ] $ docker image rm ID_DA_IMAGEM
 
 - Saiba em qual porta está rodando o Kibana
     
   $ kubectl get services -o wide
     
-  Browser: http://IPDaVm:Porta/waldemarnt/followers
+  Browser: http://IPDaVm:Porta/hello
+  Browser: http://IPDaVm:Porta/users
 
 - Checar se o APM está funcionando
-  - [ ] Browser -> Kibana -> APM -> Agent status -> Check agent status (se verde, os dados estão percorrendo o fluxo)
+  - [x] Browser -> Kibana -> APM -> Agent status -> Check agent status (se verde, os dados estão percorrendo o fluxo)
 
 ## Verificar no APM se os dados dos logs estão sendo enviados
 - [ ] Kibana -> APM -> Services -> NodeApp (veja se a requisição testada anteriormente aparece)
@@ -201,7 +251,11 @@ Isso que acabamos de implementar é só o começo. Para um ambiente de produçã
 
 ## Referências 
 - https://www.youtube.com/watch?v=CqLB-tBYB2Q
-- https://github.com/waldemarnt/devops-resources/blob/master/./yaml/elasticsearch.yaml
+- https://github.com/waldemarnt/devops-resources
+- https://github.com/waldemarnt/node-docker-example
+- https://www.digitalocean.com/community/tutorials/how-to-set-up-an-elasticsearch-fluentd-and-kibana-efk-logging-stack-on-kubernetes-pt
+- https://www.youtube.com/watch?v=z4Vmpc1BOx0
 
 ## Agradecimento especial 
 Aproveito para agradecer ao Waldemar Neto do Dev Lab por toda contribuição e esforço que tem empenhado à comunidade.
+

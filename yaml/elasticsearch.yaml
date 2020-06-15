@@ -18,9 +18,21 @@ spec:
       containers:
       - name: elasticsearch
         image: docker.elastic.co/elasticsearch/elasticsearch:6.6.1
+        #image: docker.elastic.co/elasticsearch/elasticsearch:7.6.1
+        # Bugfix start
+        resources:
+          limits:
+            cpu: 1000m
+          requests:
+            cpu: 100m
+        # Bugfix end    
         env:
         - name: discovery.type
           value: single-node
+        # Bugfix start 
+        - name: ES_JAVA_OPTS
+          value: "-Xms512m -Xmx512m"
+        # Bugfix end      
         ports:
         - containerPort: 9200
           name: client
@@ -33,6 +45,27 @@ spec:
       - name: data
         persistentVolumeClaim:
           claimName: elasticsearch
+      # Bugfix start
+      initContainers:
+      - name: fix-permissions
+        image: busybox
+        command: ["sh", "-c", "chown -R 1000:1000 /usr/share/elasticsearch/data"]
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/elasticsearch/data
+      - name: increase-vm-max-map
+        image: busybox
+        command: ["sysctl", "-w", "vm.max_map_count=262144"]
+        securityContext:
+          privileged: true
+      - name: increase-fd-ulimit
+        image: busybox
+        command: ["sh", "-c", "ulimit -n 65536"]
+        securityContext:
+          privileged: true
+      # Bugfix end    
 ---
 # Entrypoint (estão acima dos PODs - eles escolhem para qual POD vai mandar a requisição)
 apiVersion: v1
